@@ -8,14 +8,45 @@
 import SwiftUI
 
 struct ContentView: View {
+    var categories = ["Java", "React", "Vue"]
+    @State var selectedUser = false
+    @State var selectedCategories = false
+    
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+            Button(action: { if selectedUser == false { selectedUser = true } else { selectedUser = false }}, label: { 
+                    if selectedUser == false {
+                        Image("yh")
+                            .imageScale(.large)
+                            .foregroundColor(.accentColor)
+                    } else {
+                        Image("yh")
+                            .imageScale(.large)
+                            .foregroundColor(.accentColor)
+                            .colorInvert()
+                    }
+                }
+            )
+            
+            Picker("", selection: $selectedCategories) {
+                ForEach(categories, id: \.self) {
+                    Text($0)
+                }
+            }
+            .pickerStyle(.wheel)
+            
+            Button(action: {}) {
+                HStack {
+                    Image(systemName: "paperplane.fill")
+                    Text("Send")
+                }.padding(10.0)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10.0)
+                            .stroke(lineWidth: 2.0)
+                    )
+            }
+            .padding()
         }
-        .padding()
     }
 }
 
