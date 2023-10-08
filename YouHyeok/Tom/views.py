@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 import os
+import json
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -13,10 +14,23 @@ from pathlib import Path
 
 @api_view(['GET'])
 def index(request):
+    users_repo = {"Jong": ["_tutorials", "_labs"], "You": "newblog"}
 
-    print(request.data)
-        
-    return Response({"results": [{"categories": "Java"}, {"categories": "Python"}]})
+    if request.GET.get('user', None) != None:
+        if request.GET.get('user', None) == 'You':
+            repo = users_repo[request.GET.get('user', None)]
+            categories = []
+            
+            with open('/root/Repos/%s/package.json' % repo) as f:
+                json_object = json.load(f)
+
+                for key, values in json_object['scripts'].items():
+                    if "--prefix" in values:
+                        categories.append(key)
+                        
+            return Response({"results": categories})
+        elif request.GET.get('user', None) == 'Jong':
+            return Response({"results": [{"categories": "Java"}, {"categories": "Python"}]})
 
 @api_view(['POST'])
 def git(request):
