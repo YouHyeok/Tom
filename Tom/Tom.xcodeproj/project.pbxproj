@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1824AD032AD2D90C004BB025 /* SecondView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1824AD022AD2D90C004BB025 /* SecondView.swift */; };
+		1824AD052AD30B0F004BB025 /* UpResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1824AD042AD30B0F004BB025 /* UpResults.swift */; };
 		18DD53FE2AD1B15F006B3D3F /* TomApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DD53FD2AD1B15F006B3D3F /* TomApp.swift */; };
 		18DD54002AD1B15F006B3D3F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DD53FF2AD1B15F006B3D3F /* ContentView.swift */; };
 		18DD54022AD1B160006B3D3F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18DD54012AD1B160006B3D3F /* Assets.xcassets */; };
@@ -40,7 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1824AD022AD2D90C004BB025 /* SecondView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondView.swift; sourceTree = "<group>"; };
+		1824AD042AD30B0F004BB025 /* UpResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpResults.swift; sourceTree = "<group>"; };
 		18DD53FA2AD1B15F006B3D3F /* Tom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18DD53FD2AD1B15F006B3D3F /* TomApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TomApp.swift; sourceTree = "<group>"; };
 		18DD53FF2AD1B15F006B3D3F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -123,7 +123,6 @@
 				18DD53FF2AD1B15F006B3D3F /* ContentView.swift */,
 				18DD54012AD1B160006B3D3F /* Assets.xcassets */,
 				18DD54032AD1B160006B3D3F /* Preview Content */,
-				1824AD022AD2D90C004BB025 /* SecondView.swift */,
 			);
 			path = Tom;
 			sourceTree = "<group>";
@@ -157,6 +156,7 @@
 			isa = PBXGroup;
 			children = (
 				18DD54282AD2BDC4006B3D3F /* LCategories.swift */,
+				1824AD042AD30B0F004BB025 /* UpResults.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -430,8 +430,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1824AD052AD30B0F004BB025 /* UpResults.swift in Sources */,
 				18DD54002AD1B15F006B3D3F /* ContentView.swift in Sources */,
-				1824AD032AD2D90C004BB025 /* SecondView.swift in Sources */,
 				18DD53FE2AD1B15F006B3D3F /* TomApp.swift in Sources */,
 				18DD54292AD2BDC4006B3D3F /* LCategories.swift in Sources */,
 				18DD542C2AD2C0F9006B3D3F /* Networking.swift in Sources */,
