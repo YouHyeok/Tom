@@ -1,0 +1,6 @@
+framework module Pods_Tom_TomUITests {
+  umbrella header "Pods-Tom-TomUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
