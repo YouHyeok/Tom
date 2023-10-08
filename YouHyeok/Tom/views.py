@@ -17,3 +17,8 @@ def index(request):
     print(request.data)
         
     return Response({"results": [{"categories": "Java"}, {"categories": "Python"}]})
+
+@api_view(['POST'])
+def git(request):
+
+    print(request.data)
