@@ -44,5 +44,15 @@ def index(request):
 
 @api_view(['POST'])
 def git(request):
+    users_repo = {"Jong": "_tutorials", "You": "newblog"}
+    user = request.data['user']
+    repo = users_repo[user]
+    category = request.data['category']
 
-    print(request.data)
+    with open('/root/Repos/%s/package.json' % repo) as f:
+        json_object = json.load(f)
+
+        os.system("cd /root/Repos/%s/ && git config --local user.name \"%s\" && git config --local user.email \"%s\"" % (repo, json_object['scripts']['user_name'], json_object['scripts']['user_email']))
+        os.system("cd /root/Repos/%s/ && npm run %s" % (repo, category))
+
+    return Response()
