@@ -12,7 +12,7 @@ import SwiftUI
 class Networking: ObservableObject {
     @Published var lcategories = [String]()
     
-    func alamofireNetworking(url: String, query: [String: String], completion: @escaping (([String]?) -> Void)) {
+    func getCategories(url: String, query: [String: String], completion: @escaping (([String]?) -> Void)) {
             guard let sessionUrl = URL(string: url) else {
                 print("Invalid URL")
                 return
@@ -37,4 +37,28 @@ class Networking: ObservableObject {
                             }
                     }
         }
+    
+    func triggerGIT(url: String, bodyl: [String: String], completion: @escaping ((String?) -> Void)) {
+            guard let sessionUrl = URL(string: url) else {
+                print("Invalid URL")
+                return
+            }
+        
+            AF.request(sessionUrl,
+                       method: .post,
+                       parameters: bodyl,
+                       encoding: JSONEncoding.default,
+                       headers: ["Content-Type":"application/json", "Accept":"application/json"])
+                .validate(statusCode: 200..<300)
+                .responseDecodable (of: UpResults.self) { response in
+                                switch response.result {
+                                case .success(let value):
+                                    completion(value.results!)
+                                case .failure(let error):
+                                    print(error)
+                            }
+                    }
+        }
+    
+    
 }
