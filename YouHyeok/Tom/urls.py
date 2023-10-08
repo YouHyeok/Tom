@@ -8,4 +8,5 @@ import Tom.views
 
 urlpatterns = [
     path("get/categories", Tom.views.index, name='Categories'),
+    path("trigger/upload/git", Tom.views.git, name="Trigger Uploading to GIT")
 ] 
