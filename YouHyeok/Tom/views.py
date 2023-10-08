@@ -14,7 +14,7 @@ from pathlib import Path
 
 @api_view(['GET'])
 def index(request):
-    users_repo = {"Jong": ["_tutorials", "_labs"], "You": "newblog"}
+    users_repo = {"Jong": "_tutorials", "You": "newblog"}
 
     if request.GET.get('user', None) != None:
         if request.GET.get('user', None) == 'You':
@@ -30,7 +30,17 @@ def index(request):
                         
             return Response({"results": categories})
         elif request.GET.get('user', None) == 'Jong':
-            return Response({"results": [{"categories": "Java"}, {"categories": "Python"}]})
+            repo = users_repo[request.GET.get('user', None)]
+            categories = []
+            
+            with open('/root/Repos/%s/package.json' % repo) as f:
+                json_object = json.load(f)
+
+                for key, values in json_object['scripts'].items():
+                    if "--prefix" in values:
+                        categories.append(key)
+                        
+            return Response({"results": categories})
 
 @api_view(['POST'])
 def git(request):
