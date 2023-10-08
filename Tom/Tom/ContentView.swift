@@ -5,16 +5,49 @@
 //  Created by 김종혁 on 2023/10/08.
 //
 
+
+import Foundation
 import SwiftUI
+import Alamofire
 
 struct ContentView: View {
-    var categories = ["Java", "React", "Vue"]
+    @ObservedObject var you: Networking = Networking()
+    @ObservedObject var jong: Networking = Networking()
     @State var selectedUser = false
-    @State var selectedCategories = false
+    @State var selectedYCategories = false
+    @State var selectedJCategories = false
+    @State var showDetails = true
+    @State var transition = false
+    
+    init() {
+        you.alamofireNetworking(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
+        })
+        
+        jong.alamofireNetworking(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jong"], completion: { (categories) in
+        })
+    }
     
     var body: some View {
         VStack {
-            Button(action: { if selectedUser == false { selectedUser = true } else { selectedUser = false }}, label: { 
+            Button(action: { if selectedUser == false {
+                selectedUser = true
+                showDetails = false
+                
+                transition = true
+                
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+                    transition = false
+                }
+            } else {
+                selectedUser = false
+                showDetails = true
+                
+                transition = true
+                
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+                    transition = false
+                }
+            }}, label: {
                     if selectedUser == false {
                         Image("yh")
                             .imageScale(.large)
@@ -27,13 +60,23 @@ struct ContentView: View {
                     }
                 }
             )
+            .disabled(transition)
             
-            Picker("", selection: $selectedCategories) {
-                ForEach(categories, id: \.self) {
-                    Text($0)
+            if showDetails {
+                Picker("", selection: $selectedYCategories) {
+                    ForEach(you.lcategories, id: \.self) {
+                        Text($0)
+                    }
                 }
+                .pickerStyle(.wheel)
+            } else {
+                Picker("", selection: $selectedJCategories) {
+                    ForEach(jong.lcategories, id: \.self) {
+                        Text($0)
+                    }
+                }
+                .pickerStyle(.wheel)
             }
-            .pickerStyle(.wheel)
             
             Button(action: {}) {
                 HStack {
@@ -50,8 +93,8 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
