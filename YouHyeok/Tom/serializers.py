@@ -3,7 +3,7 @@ from Tom.models import SchedulingTasks
 
 class SchedulingSerializer(serializers.ModelSerializer):
     task = serializers.CharField(max_length = 20)
-    scheduled_id = serializers.integerField()
+    scheduled_id = serializers.IntegerField()
     scheduled_time = serializers.IntegerField()
 
     class Meta:
