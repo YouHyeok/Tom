@@ -15,6 +15,7 @@ from pathlib import Path
 
 from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
@@ -87,15 +88,29 @@ def register_periodic_task(scheduled_time, user, task):
         period=IntervalSchedule.MINUTES,  
     )
 
-    task = PeriodicTask.objects.create(
-        interval=schedule,
-        name=user + ' ' + task,
-        task="Tom.tasks.git_task",
-        args = json.dumps([user, task]),
-        enabled = True
-    )
+    try:
+        task = PeriodicTask.objects.create(
+            interval=schedule,
+            name=user + ' ' + task,
+            task="Tom.tasks.git_task",
+            args = json.dumps([user, task]),
+            enabled = True
+        )
 
-    task.save()
+        task.save()
+    except ValidationError:
+        IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = user + ' ' + task).interval_id).delete()
+        PeriodicTask.objects.filter(name = user + ' ' + task).delete()
+
+        task = PeriodicTask.objects.create(
+            interval=schedule,
+            name=user + ' ' + task,
+            task="Tom.tasks.git_task",
+            args = json.dumps([user, task]),
+            enabled = True
+        )
+
+        task.save()
 
     return task.id
 
@@ -106,8 +121,8 @@ def register_schedule(request):
             record = SchedulingTasks.objects.get(user = request.data['user'], task = request.data['task'])
 
             if record.scheduled_id is not None:
-                IntervalSchedule.objects.get(pk = PeriodicTask.objects.get(pk = record.scheduled_id).interval_id).delete()
-                PeriodicTask.objects.get(pk = record.scheduled_id).delete()
+                IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).interval_id).delete()
+                PeriodicTask.objects.filter(name = request.data['user'] + ' ' + request.data['task']).delete()
                 record.delete()
 
             if request.data["scheduled_time"] == 0:
@@ -125,8 +140,8 @@ def register_schedule(request):
         except SchedulingTasks.MultipleObjectsReturned:
             SchedulingTasks.objects.filter(user = request.data['user'], task = request.data['task']).delete()
             
-            IntervalSchedule.objects.get(pk = PeriodicTask.objects.get(pk = record.scheduled_id).interval_id).delete()
-            PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).delete()
+            IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).interval_id).delete()
+            PeriodicTask.objects.filter(name = request.data['user'] + ' ' + request.data['task']).delete()
     except ObjectDoesNotExist:
         if request.data["scheduled_time"] == 0:
             record = SchedulingTasks(user = request.data['user'], task = request.data['task'], \
