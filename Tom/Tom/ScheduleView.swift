@@ -26,8 +26,16 @@ struct ScheduleView: View {
             
         })
         
+        you.getScheduledTasks(url: "http://221.159.102.58:8000/api/get/scheduled_tasks", query: ["user": "You"], completion: { (scheduled_tasks) in
+            
+        })
+        
         jong.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jong"], completion: { (categories) in
             
+            
+        })
+        
+        jong.getScheduledTasks(url: "http://221.159.102.58:8000/api/get/scheduled_tasks", query: ["user": "Jong"], completion: { (scheduled_tasks) in
             
         })
     }
@@ -113,7 +121,11 @@ struct ScheduleView: View {
                         .pickerStyle(.wheel)
                         .onChange(of: selectedYCategories, perform: { newValue in print("Selected Unit: \(you.lcategories[newValue])", "Selected Index: \(newValue)")
                         
-                            you.selectedLtimesid = you.lcatetime["\(newValue)"] ?? 0
+                            if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[newValue]}) {
+                                you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                            } else {
+                                you.selectedLtimesid = 0
+                            }
                         })
                         .padding(5)
                         
@@ -133,9 +145,13 @@ struct ScheduleView: View {
                         }
                         .pickerStyle(.wheel)
                         .onChange(of: selectedJCategories, perform: { newValue in print("Selected Unit: \(jong.lcategories[newValue])", "Selected Index: \(newValue)")
-                            jong.selectedLtimesid = jong.lcatetime["\(newValue)"] ?? 0
+                            
+                            if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[newValue]}) {
+                                jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                            } else {
+                                jong.selectedLtimesid = 0
+                            }
                         })
-                        
                         .padding(5)
                         
                         Picker("", selection: $jong.selectedLtimesid) {
