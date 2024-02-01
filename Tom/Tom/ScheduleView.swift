@@ -50,11 +50,17 @@ struct ScheduleView: View {
                         if selectedUser == false {
                             you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
                                 
+                            })
+                            
+                            you.getScheduledTasks(url: "http://221.159.102.58:8000/api/get/scheduled_tasks", query: ["user": "You"], completion: { (scheduled_tasks) in
                                 
                             })
                         } else {
                             jong.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jong"], completion: { (categories) in
                                 
+                            })
+                            
+                            jong.getScheduledTasks(url: "http://221.159.102.58:8000/api/get/scheduled_tasks", query: ["user": "Jong"], completion: { (scheduled_tasks) in
                                 
                             })
                         }
