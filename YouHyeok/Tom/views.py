@@ -6,13 +6,18 @@ import json
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
+from Tom.models import SchedulingTasks
+from Tom.serializers import SchedulingSerializer
+
 from django.conf import settings
 
 from pathlib import Path
 
+from django.forms.models import model_to_dict
+
 # Create your views here.
 
-users_repo = {"Jong": ["_tutorials", "_labs"], "You": ["newblog"]}
+users_repo = {"Jong": ["_tutorials", "_labs", "_enfycius"], "You": ["newblog"]}
 
 @api_view(['GET'])
 def index(request):
@@ -21,7 +26,6 @@ def index(request):
         if request.GET.get('user', None) == 'You':
             repos = users_repo[request.GET.get('user', None)]
             categories = []
-
 
             for repo in repos:
                 with open('/root/Repos/%s/package.json' % repo) as f:
@@ -46,6 +50,19 @@ def index(request):
                             categories.append(repo + "-" + key)
                         
             return Response({"results": categories})
+
+@api_view(['GET'])
+def scheduled_tasks(request):
+    scheduled_tasks = SchedulingTasks.objects.all()
+
+    scheduled_tasks = [model_to_dict(obj) for obj in scheduled_tasks]
+
+    serializer = SchedulingSerializer(data = scheduled_tasks, many = True)
+
+    if serializer.is_valid():
+        return Response({"status": "success", "data": serializer.data})
+    else:
+        return Response({"status": "error", "data": serializer.errors})
 
 @api_view(['POST'])
 def git(request):
