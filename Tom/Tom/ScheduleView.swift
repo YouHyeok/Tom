@@ -152,14 +152,19 @@ struct ScheduleView: View {
                 Button(action: {
                     alertShowing = false
                     
+                
                     if selectedUser == false {
-                        you.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "You", "category": you.lcategories[selectedYCategories]], completion: { (results) in
+                        let registerScheduleRequest = RegisterScheduleRequest(user: "You", task: you.lcategories[selectedYCategories], scheduled_time: you.selectedLtimesid)
+                        
+                        you.registerSchedule(url: "http://221.159.102.58:8000/api/register/schedule", bodyl: registerScheduleRequest.toDictionary, completion: { (results) in
                             
                             alertShowing = true
                             
                         })
                     } else {
-                        jong.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "Jong", "category": jong.lcategories[selectedJCategories]], completion: { (results) in
+                        let registerScheduleRequest = RegisterScheduleRequest(user: "Jong", task: jong.lcategories[selectedJCategories], scheduled_time: jong.selectedLtimesid)
+                        
+                        jong.registerSchedule(url: "http://221.159.102.58:8000/api/register/schedule", bodyl: registerScheduleRequest.toDictionary, completion: { (results) in
                             
                             alertShowing = true
                             

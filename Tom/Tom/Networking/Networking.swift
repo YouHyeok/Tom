@@ -63,5 +63,27 @@ class Networking: ObservableObject {
                     }
         }
     
+    func registerSchedule(url: String, bodyl: Parameters?, completion: @escaping ((String?) -> Void)) {
+            guard let sessionUrl = URL(string: url) else {
+                print("Invalid URL")
+                return
+            }
+        
+            AF.request(sessionUrl,
+                       method: .post,
+                       parameters: bodyl,
+                       encoding: JSONEncoding.default,
+                       headers: ["Content-Type":"application/json", "Accept":"application/json"])
+                .validate(statusCode: 200..<300)
+                .responseDecodable (of: UpResults.self) { response in
+                                switch response.result {
+                                case .success(let value):
+                                    completion(value.results!)
+                                case .failure(let error):
+                                    print(error)
+                            }
+                    }
+        }
+    
     
 }
