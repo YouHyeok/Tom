@@ -58,16 +58,28 @@ def index(request):
 
 @api_view(['GET'])
 def scheduled_tasks(request):
-    scheduled_tasks = SchedulingTasks.objects.all()
+    if request.GET.get('user', None) != None:
+        if request.GET.get('user', None) == 'You':
+            scheduled_tasks = SchedulingTasks.objects.filter(user = 'You')
+            scheduled_tasks = [model_to_dict(obj) for obj in scheduled_tasks]
 
-    scheduled_tasks = [model_to_dict(obj) for obj in scheduled_tasks]
+            serializer = SchedulingSerializer(data = scheduled_tasks, many = True)
 
-    serializer = SchedulingSerializer(data = scheduled_tasks, many = True)
+            if serializer.is_valid():
+                return Response({"status": "success", "data": serializer.data})
+            else:
+                return Response({"status": "error", "data": serializer.errors})
+            
+        elif request.GET.get('user', None) == 'Jong':
+            scheduled_tasks = SchedulingTasks.objects.filter(user = 'Jong')
+            scheduled_tasks = [model_to_dict(obj) for obj in scheduled_tasks]
 
-    if serializer.is_valid():
-        return Response({"status": "success", "data": serializer.data})
-    else:
-        return Response({"status": "error", "data": serializer.errors})
+            serializer = SchedulingSerializer(data = scheduled_tasks, many = True)
+
+            if serializer.is_valid():
+                return Response({"status": "success", "data": serializer.data})
+            else:
+                return Response({"status": "error", "data": serializer.errors})
 
 def register_periodic_task(scheduled_time, user, task):
     schedule, created = IntervalSchedule.objects.get_or_create(
