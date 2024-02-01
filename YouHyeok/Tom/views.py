@@ -20,6 +20,7 @@ from django.core.exceptions import ValidationError
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
 from django.db.models import F
+from django.db import transaction
 
 # Create your views here.
 
@@ -117,32 +118,38 @@ def register_periodic_task(scheduled_time, user, task):
 @api_view(['POST'])
 def register_schedule(request):
     try:
-        try:
-            record = SchedulingTasks.objects.get(user = request.data['user'], task = request.data['task'])
+        with transaction.atomic():
+            try:
+                SchedulingTasks.objects.filter(user = request.data['user'], task = request.data['task']).delete()
 
-            if record.scheduled_id is not None:
                 IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).interval_id).delete()
                 PeriodicTask.objects.filter(name = request.data['user'] + ' ' + request.data['task']).delete()
-                record.delete()
+            except:
+                pass
 
             if request.data["scheduled_time"] == 0:
                 record = SchedulingTasks(user = request.data['user'], task = request.data['task'], \
                 scheduled_id = None, scheduled_time = request.data['scheduled_time'])
+
+                record.save()
             else:
                 task_id = register_periodic_task(str(request.data['scheduled_time']), request.data['user'], request.data['task'])
             
                 record = SchedulingTasks(user = request.data['user'], task = request.data['task'], \
                 scheduled_id = task_id, scheduled_time = request.data['scheduled_time'])
             
-            record.save()
-        except SchedulingTasks.DoesNotExist:
-           raise ObjectDoesNotExist
-        except SchedulingTasks.MultipleObjectsReturned:
-            SchedulingTasks.objects.filter(user = request.data['user'], task = request.data['task']).delete()
-            
-            IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).interval_id).delete()
-            PeriodicTask.objects.filter(name = request.data['user'] + ' ' + request.data['task']).delete()
-    except ObjectDoesNotExist:
+                record.save()
+       
+    except:
+        with transaction.atomic():
+            try:
+                SchedulingTasks.objects.filter(user = request.data['user'], task = request.data['task']).delete()
+
+                IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).interval_id).delete()
+                PeriodicTask.objects.filter(name = request.data['user'] + ' ' + request.data['task']).delete()
+            except:
+                pass
+
         if request.data["scheduled_time"] == 0:
             record = SchedulingTasks(user = request.data['user'], task = request.data['task'], \
                 scheduled_id = None, scheduled_time = request.data['scheduled_time'])
