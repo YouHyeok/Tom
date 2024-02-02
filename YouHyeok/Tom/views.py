@@ -100,8 +100,7 @@ def register_periodic_task(scheduled_time, user, task):
 
         task.save()
     except ValidationError:
-        IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = user + ' ' + task).interval_id).delete()
-        PeriodicTask.objects.filter(name = user + ' ' + task).delete()
+        PeriodicTask.objects.filter(name = (user + ' ' + task)).delete()
 
         task = PeriodicTask.objects.create(
             interval=schedule,
@@ -122,8 +121,7 @@ def register_schedule(request):
             try:
                 SchedulingTasks.objects.filter(user = request.data['user'], task = request.data['task']).delete()
 
-                IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).interval_id).delete()
-                PeriodicTask.objects.filter(name = request.data['user'] + ' ' + request.data['task']).delete()
+                PeriodicTask.objects.filter(name = (request.data['user'] + ' ' + request.data['task'])).delete()
             except:
                 pass
 
@@ -145,8 +143,7 @@ def register_schedule(request):
             try:
                 SchedulingTasks.objects.filter(user = request.data['user'], task = request.data['task']).delete()
 
-                IntervalSchedule.objects.filter(pk = PeriodicTask.objects.get(name = request.data['user'] + ' ' + request.data['task']).interval_id).delete()
-                PeriodicTask.objects.filter(name = request.data['user'] + ' ' + request.data['task']).delete()
+                PeriodicTask.objects.filter(name = (request.data['user'] + ' ' + request.data['task'])).delete()
             except:
                 pass
 
