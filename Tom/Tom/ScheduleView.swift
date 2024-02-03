@@ -23,7 +23,6 @@ struct ScheduleView: View {
     init() {
         you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
             
-            
         })
         
         you.getScheduledTasks(url: "http://221.159.102.58:8000/api/get/scheduled_tasks", query: ["user": "You"], completion: { (scheduled_tasks) in
@@ -31,7 +30,6 @@ struct ScheduleView: View {
         })
         
         jong.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jong"], completion: { (categories) in
-            
             
         })
         
@@ -126,11 +124,13 @@ struct ScheduleView: View {
                         }
                         .pickerStyle(.wheel)
                         .onChange(of: selectedYCategories, perform: { newValue in print("Selected Unit: \(you.lcategories[newValue])", "Selected Index: \(newValue)")
-                        
-                            if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[newValue]}) {
-                                you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
-                            } else {
-                                you.selectedLtimesid = 0
+                            
+                            if newValue != 0 {
+                                if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[newValue]}) {
+                                    you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                                } else {
+                                    you.selectedLtimesid = 0
+                                }
                             }
                         })
                         .padding(5)
@@ -152,10 +152,12 @@ struct ScheduleView: View {
                         .pickerStyle(.wheel)
                         .onChange(of: selectedJCategories, perform: { newValue in print("Selected Unit: \(jong.lcategories[newValue])", "Selected Index: \(newValue)")
                             
-                            if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[newValue]}) {
-                                jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
-                            } else {
-                                jong.selectedLtimesid = 0
+                            if newValue != 0 {
+                                if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[newValue]}) {
+                                    jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                                } else {
+                                    jong.selectedLtimesid = 0
+                                }
                             }
                         })
                         .padding(5)
@@ -174,7 +176,6 @@ struct ScheduleView: View {
                 Button(action: {
                     alertShowing = false
                     
-                
                     if selectedUser == false {
                         let registerScheduleRequest = RegisterScheduleRequest(user: "You", task: you.lcategories[selectedYCategories], scheduled_time: you.selectedLtimesid)
                         
@@ -208,6 +209,19 @@ struct ScheduleView: View {
                     Button("OK", role: .cancel) {  }
                         .padding()
                 }
+            }
+        }
+        .task {
+            if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[0]}) {
+                you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+            } else {
+                you.selectedLtimesid = 0
+            }
+            
+            if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[0]}) {
+                jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+            } else {
+                jong.selectedLtimesid = 0
             }
         }
     }
