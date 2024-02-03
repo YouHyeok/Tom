@@ -124,13 +124,11 @@ struct ScheduleView: View {
                         }
                         .pickerStyle(.wheel)
                         .onChange(of: selectedYCategories, perform: { newValue in print("Selected Unit: \(you.lcategories[newValue])", "Selected Index: \(newValue)")
-                            
-                            if newValue != 0 {
-                                if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[newValue]}) {
-                                    you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
-                                } else {
-                                    you.selectedLtimesid = 0
-                                }
+            
+                            if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[newValue]}) {
+                                you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                            } else {
+                                you.selectedLtimesid = 0
                             }
                         })
                         .padding(5)
@@ -152,12 +150,10 @@ struct ScheduleView: View {
                         .pickerStyle(.wheel)
                         .onChange(of: selectedJCategories, perform: { newValue in print("Selected Unit: \(jong.lcategories[newValue])", "Selected Index: \(newValue)")
                             
-                            if newValue != 0 {
-                                if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[newValue]}) {
-                                    jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
-                                } else {
-                                    jong.selectedLtimesid = 0
-                                }
+                            if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[newValue]}) {
+                                jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                            } else {
+                                jong.selectedLtimesid = 0
                             }
                         })
                         .padding(5)
