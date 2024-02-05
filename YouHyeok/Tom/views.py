@@ -24,18 +24,17 @@ from django.db import transaction
 
 # Create your views here.
 
-users_repo = {"Jong": ["_tutorials", "_labs", "_enfycius"], "You": ["newblog"]}
 schedule_time = {"1": 5, "2": 10, "3": 15, "4": 30, "5": 60, "6": 120}
 
 @api_view(['GET'])
 def index(request):
     if request.GET.get('user', None) != None:
         if request.GET.get('user', None) == 'You':
-            repos = users_repo[request.GET.get('user', None)]
+            repos = os.listdir("/root/Repos/You")
             categories = []
 
             for repo in repos:
-                with open('/root/Repos/%s/package.json' % repo) as f:
+                with open('/root/Repos/You/%s/package.json' % repo) as f:
                     json_object = json.load(f)
 
                     for key, values in json_object['scripts'].items():
@@ -45,11 +44,11 @@ def index(request):
             return Response({"results": categories})
         
         elif request.GET.get('user', None) == 'Jong':
-            repos = users_repo[request.GET.get('user', None)]
+            repos = os.listdir("/root/Repos/Jong")
             categories = []
 
             for repo in repos:
-                with open('/root/Repos/%s/package.json' % repo) as f:
+                with open('/root/Repos/Jong/%s/package.json' % repo) as f:
                     json_object = json.load(f)
 
                     for key, values in json_object['scripts'].items():
@@ -79,6 +78,8 @@ def scheduled_tasks(request):
             serializer = SchedulingSerializer(data = scheduled_tasks, many = True)
 
             if serializer.is_valid():
+                print(serializer.data)
+
                 return Response({"status": "success", "data": serializer.data})
             else:
                 return Response({"status": "error", "data": serializer.errors})
@@ -165,7 +166,7 @@ def git(request):
     print(request.data)
 
     user = request.data['user']
-    repos = users_repo[user]
+    repos = os.listdir("/root/Repos" + '/' + user)
     category = request.data['category'].split('-')[1]
     repo = request.data['category'].split('-')[0]
 
@@ -173,11 +174,11 @@ def git(request):
         print(repo)
         print(category)
 
-        with open('/root/Repos/%s/package.json' % repo) as f:
+        with open('/root/Repos/%s/%s/package.json' % (user, repo)) as f:
             json_object = json.load(f)
 
-            os.system("cd /root/Repos/%s/ && git config --local user.name \"%s\" && git config --local user.email \"%s\"" % (repo, json_object['scripts']['user_name'], json_object['scripts']['user_email']))
-            os.system("cd /root/Repos/%s/ && npm run %s" % (repo, category))
+            os.system("cd /root/Repos/%s/%s/ && git config --local user.name \"%s\" && git config --local user.email \"%s\"" % (user, repo, json_object['scripts']['user_name'], json_object['scripts']['user_email']))
+            os.system("cd /root/Repos/%s/%s/ && npm run %s" % (user, repo, category))
 
         return Response({"results": "success"})
     else:
