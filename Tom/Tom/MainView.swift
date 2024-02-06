@@ -15,15 +15,22 @@ struct MainView: View {
     @ObservedObject var jong: Networking = Networking()
     
     @State var selectedUser = false
-    @State var selectedYCategories: Int = 0
-    @State var selectedJCategories: Int = 0
+    @State var selectedYCategories: String = ""
+    @State var selectedYBCategories: String = ""
+    @State var selectedJCategories: String = ""
+    @State var selectedJBCategories: String = ""
     @State var showDetails = true
     @State var transition = false
     @State var alertShowing = false
+    @State var is_yb_loaded = false
+    @State var is_jb_loaded = false
+    @State var ybcategories: [String] = []
+    @State var jbcategories: [String] = []
+    @State var is_yb_loading = true
+    @State var is_jb_loading = true
     
     init() {
         you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
-            
             
         })
         
@@ -42,13 +49,29 @@ struct MainView: View {
                     Button(action: {
                         if selectedUser == false {
                             you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
-                                
-                                
+                                DispatchQueue.main.async { [self] in
+                                    self.ybcategories = Array(Set(you.lcategories.map { value in
+                                        
+                                        value.components(separatedBy: "-").first!
+                                    })).sorted()
+                                    
+                                    self.is_yb_loading = false
+                                    self.selectedYBCategories = self.ybcategories.first!
+                                    self.selectedYCategories = you.lcategories.filter { $0.contains(self.selectedYBCategories) }.first!
+                                }
                             })
                         } else {
                             jong.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jong"], completion: { (categories) in
-                                
-                                
+                                DispatchQueue.main.async { [self] in
+                                    self.jbcategories = Array(Set(jong.lcategories.map { value in
+                                        
+                                        value.components(separatedBy: "-").first!
+                                    })).sorted()
+                                    
+                                    self.is_jb_loading = false
+                                    self.selectedJBCategories = self.jbcategories.first!
+                                    self.selectedJCategories = jong.lcategories.filter { $0.contains(self.selectedJBCategories) }.first!
+                                }
                             })
                         }
                     }, label: {
@@ -72,8 +95,8 @@ struct MainView: View {
                 
                 Spacer()
             }
+            
             VStack {
-                
                 Button(action: { if selectedUser == false {
                     selectedUser = true
                     showDetails = false
@@ -108,30 +131,69 @@ struct MainView: View {
                 .disabled(transition)
                 
                 if showDetails {
-                    Picker("", selection: $selectedYCategories) {
-                        ForEach(you.lcategories.indices, id: \.self) { index in Text(you.lcategories[index]) }
+                    HStack {
+                        Picker("", selection: $selectedYBCategories) {
+                            ForEach(ybcategories, id: \.self) { category in
+                                Text(category).tag(category) }
+                        }
+                        .pickerStyle(.wheel)
+                        .onChange(of: selectedYBCategories, perform: { value in
+                            
+                            self.selectedYCategories = you.lcategories.filter { $0.contains(value) }.first!
+                        })
+                        .padding(5)
+                        
+                        Picker("", selection: $selectedYCategories) {
+                            ForEach(you.lcategories.indices, id: \.self) { index in
+                                if !is_yb_loading {
+                                    if you.lcategories[index].contains(selectedYBCategories) {
+                                        Text(you.lcategories[index]).tag(you.lcategories[index])
+                                    }
+                                }
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .padding(5)
                     }
-                    .pickerStyle(.wheel)
-                    .onChange(of: selectedYCategories, perform: { newValue in print("Selected Unit: \(you.lcategories[newValue])", "Selected Index: \(newValue)")})
+                    
                 } else {
-                    Picker("", selection: $selectedJCategories) {
-                        ForEach(jong.lcategories.indices, id: \.self) { index in Text(jong.lcategories[index]) }
+                    HStack {
+                        Picker("", selection: $selectedJBCategories) {
+                            ForEach(jbcategories, id: \.self) { category in
+                                Text(category).tag(category) }
+                        }
+                        .pickerStyle(.wheel)
+                        .onChange(of: selectedJBCategories, perform: { value in
+                            
+                            self.selectedJCategories = jong.lcategories.filter { $0.contains(value) }.first!
+                        })
+                        .padding(5)
+                        
+                        Picker("", selection: $selectedJCategories) {
+                            ForEach(jong.lcategories.indices, id: \.self) { index in
+                                if !is_jb_loading {
+                                    if jong.lcategories[index].contains(selectedJBCategories) {
+                                        Text(jong.lcategories[index]).tag(jong.lcategories[index])
+                                    }
+                                }
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .padding(5)
                     }
-                    .pickerStyle(.wheel)
-                    .onChange(of: selectedJCategories, perform: { newValue in print("Selected Unit: \(jong.lcategories[newValue])", "Selected Index: \(newValue)")})
                 }
                 
                 Button(action: {
                     alertShowing = false
                     
                     if selectedUser == false {
-                        you.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "You", "category": you.lcategories[selectedYCategories]], completion: { (results) in
+                        you.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "You", "category": selectedYCategories], completion: { (results) in
                             
                             alertShowing = true
                             
                         })
                     } else {
-                        jong.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "Jong", "category": jong.lcategories[selectedJCategories]], completion: { (results) in
+                        jong.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "Jong", "category": selectedJCategories], completion: { (results) in
                             
                             alertShowing = true
                             
@@ -154,9 +216,38 @@ struct MainView: View {
                         .padding()
                 }
             }
+            
+        }
+        .onAppear {
+            you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
+                DispatchQueue.main.async { [self] in
+                    self.ybcategories = Array(Set(you.lcategories.map { value in
+                        
+                        value.components(separatedBy: "-").first!
+                    })).sorted()
+                    
+                    self.is_yb_loading = false
+                    self.selectedYBCategories = self.ybcategories.first!
+                    self.selectedYCategories = you.lcategories.filter { $0.contains(self.selectedYBCategories) }.first!
+                }
+            })
+            
+            jong.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jong"], completion: { (categories) in
+                DispatchQueue.main.async { [self] in
+                    self.jbcategories = Array(Set(jong.lcategories.map { value in
+                        
+                        value.components(separatedBy: "-").first!
+                    })).sorted()
+                    
+                    self.is_jb_loading = false
+                    self.selectedJBCategories = self.jbcategories.first!
+                    self.selectedJCategories = jong.lcategories.filter { $0.contains(self.selectedJBCategories) }.first!
+                }
+            })
         }
     }
 }
+    
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
