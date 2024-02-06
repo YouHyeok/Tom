@@ -12,10 +12,10 @@ struct ScheduleView: View {
     @ObservedObject var jong: Networking = Networking()
     
     @State var selectedUser = false
-    @State var selectedYCategories: Int = 0
-    @State var selectedYBCategories: Int = 0
-    @State var selectedJCategories: Int = 0
-    @State var selectedJBCategories: Int = 0
+    @State var selectedYCategories: String = ""
+    @State var selectedYBCategories: String = ""
+    @State var selectedJCategories: String = ""
+    @State var selectedJBCategories: String = ""
     @State var selectedYTimes: Int = 0
     @State var selectedJTimes: Int = 0
     @State var showDetails = true
@@ -125,38 +125,47 @@ struct ScheduleView: View {
                 if showDetails {
                     VStack(spacing: -65) {
                         Picker("", selection: $selectedYBCategories) {
-                            ForEach(ybcategories.indices, id: \.self) { index in
-                                Text(ybcategories[index]) }
+                            ForEach(ybcategories, id: \.self) { category in
+                                Text(category).tag(category) }
                         }
                         .pickerStyle(.wheel)
+                        .onChange(of: selectedYBCategories, perform: {
+                            value in
+                            
+                            self.selectedYCategories = you.lcategories.filter { $0.contains(value) }.first!
+                            
+                            if let getScheduledTask = you.lscheduledTasks.last(where: {$0.task == selectedYCategories}) {
+                                self.selectedYTimes = getScheduledTask.scheduled_time!
+                            } else {
+                                self.selectedYTimes = 0
+                            }
+                        })
                         
                         HStack {
                             Picker("", selection: $selectedYCategories) {
                                 ForEach(you.lcategories.indices, id: \.self) { index in
-                                    
                                     if !is_yb_loading {
-                                        if you.lcategories[index].contains(ybcategories[selectedYBCategories]) {
-                                            Text(you.lcategories[index])
+                                        if you.lcategories[index].contains(selectedYBCategories) {
+                                            Text(you.lcategories[index]).tag(you.lcategories[index])
                                         }
                                     }
                                 }
                             }
                             .pickerStyle(.wheel)
-                            .onChange(of: selectedYCategories, perform: { newValue in print("Selected Unit: \(you.lcategories[newValue])", "Selected Index: \(newValue)")
-                                
-                                if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[newValue]}) {
-                                    you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                            .onChange(of: selectedYCategories, perform: { value in
+                                if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == value}) {
+                                    self.selectedYTimes = Int(scheduledTask.scheduled_time!)
                                 } else {
-                                    you.selectedLtimesid = 0
+                                    self.selectedYTimes = 0
                                 }
                             })
                             .padding([.leading, .trailing], 5)
                             
-                            Picker("", selection: $you.selectedLtimesid) {
+                            Picker("", selection: $selectedYTimes) {
                                 ForEach(you.ltimes.indices, id: \.self) { index in Text(you.ltimes[index]) }
                             }
                             .pickerStyle(.wheel)
-                            .onChange(of: you.selectedLtimesid, perform: { newValue in
+                            .onChange(of: self.selectedYTimes, perform: { newValue in
                                 print(newValue)
                             })
                             .padding([.leading, .trailing], 5)
@@ -168,36 +177,46 @@ struct ScheduleView: View {
                 } else {
                     VStack(spacing: -65) {
                         Picker("", selection: $selectedJBCategories) {
-                            ForEach(jbcategories.indices, id: \.self) { index in
-                                Text(jbcategories[index]) }
+                            ForEach(jbcategories, id: \.self) { category in
+                                Text(category).tag(category) }
                         }
                         .pickerStyle(.wheel)
+                        .onChange(of: selectedJBCategories, perform: {
+                            value in
+                            
+                            self.selectedJCategories = jong.lcategories.filter { $0.contains(value) }.first!
+                            
+                            if let getScheduledTask = jong.lscheduledTasks.last(where: {$0.task == selectedJCategories}) {
+                                self.selectedJTimes = getScheduledTask.scheduled_time!
+                            } else {
+                                self.selectedJTimes = 0
+                            }
+                        })
                         
                         HStack {
                             Picker("", selection: $selectedJCategories) {
                                 ForEach(jong.lcategories.indices, id: \.self) { index in
                                     if !is_jb_loading {
-                                        if jong.lcategories[index].contains(jbcategories[selectedJBCategories]) {
-                                            Text(jong.lcategories[index])
+                                        if jong.lcategories[index].contains(selectedJBCategories) {
+                                            Text(jong.lcategories[index]).tag(jong.lcategories[index])
                                         }
                                     }
                                 }
                             }
                             .pickerStyle(.wheel)
-                            .onChange(of: selectedJCategories, perform: { newValue in print("Selected Unit: \(jong.lcategories[newValue])", "Selected Index: \(newValue)")
-                                
-                                if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[newValue]}) {
-                                    jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+                            .onChange(of: selectedJCategories, perform: { value in
+                                if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == value}) {
+                                    self.selectedJTimes = Int(scheduledTask.scheduled_time!)
                                 } else {
-                                    jong.selectedLtimesid = 0
+                                    self.selectedJTimes = 0
                                 }
                             })
                             .padding(5)
                             
-                            Picker("", selection: $jong.selectedLtimesid) {
+                            Picker("", selection: $selectedJTimes) {
                                 ForEach(jong.ltimes.indices, id: \.self) { index in Text(jong.ltimes[index]) }
                             }
-                            .onChange(of: jong.selectedLtimesid, perform: { newValue in
+                            .onChange(of: self.selectedJTimes, perform: { newValue in
                                 print(newValue)
                             })
                             .pickerStyle(.wheel)
@@ -212,16 +231,33 @@ struct ScheduleView: View {
                     alertShowing = false
                     
                     if selectedUser == false {
-                        let registerScheduleRequest = RegisterScheduleRequest(user: "You", task: you.lcategories[selectedYCategories], scheduled_time: you.selectedLtimesid)
+                        let registerScheduleRequest = RegisterScheduleRequest(user: "You", task: selectedYCategories, scheduled_time: self.selectedYTimes)
                         
                         you.registerSchedule(url: "http://221.159.102.58:8000/api/register/schedule", bodyl: registerScheduleRequest.toDictionary, completion: { (results) in
+                            
+                            you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
+                                
+                            })
+                            
+                            you.getScheduledTasks(url: "http://221.159.102.58:8000/api/get/scheduled_tasks", query: ["user": "You"], completion: { (scheduled_tasks) in
+                                
+                            })
                             
                             alertShowing = true
                         })
                     } else {
-                        let registerScheduleRequest = RegisterScheduleRequest(user: "Jong", task: jong.lcategories[selectedJCategories], scheduled_time: jong.selectedLtimesid)
+                        let registerScheduleRequest = RegisterScheduleRequest(user: "Jong", task: selectedJCategories, scheduled_time: self.selectedJTimes)
                         
                         jong.registerSchedule(url: "http://221.159.102.58:8000/api/register/schedule", bodyl: registerScheduleRequest.toDictionary, completion: { (results) in
+                            
+                            
+                            jong.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jong"], completion: { (categories) in
+                                
+                            })
+                            
+                            jong.getScheduledTasks(url: "http://221.159.102.58:8000/api/get/scheduled_tasks", query: ["user": "Jong"], completion: { (scheduled_tasks) in
+                                
+                            })
                             
                             alertShowing = true
                         })
@@ -251,6 +287,8 @@ struct ScheduleView: View {
                 })).sorted()
                 
                 self.is_yb_loading = false
+                self.selectedYBCategories = self.ybcategories.first!
+                self.selectedYCategories = you.lcategories.filter { $0.contains(self.selectedYBCategories) }.first!
                 
                 self.jbcategories = Array(Set(jong.lcategories.map { value in
                     
@@ -258,19 +296,21 @@ struct ScheduleView: View {
                 })).sorted()
                 
                 self.is_jb_loading = false
+                self.selectedJBCategories = self.jbcategories.first!
+                self.selectedJCategories = jong.lcategories.filter { $0.contains(self.selectedJBCategories) }.first!
             }
         }
         .task {
-            if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == you.lcategories[0]}) {
-                you.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+            if let scheduledTask = you.lscheduledTasks.last(where: {$0.task == self.selectedYCategories}) {
+                self.selectedYTimes = Int(scheduledTask.scheduled_time!)
             } else {
-                you.selectedLtimesid = 0
+                self.selectedYTimes = 0
             }
             
-            if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == jong.lcategories[0]}) {
-                jong.selectedLtimesid = Int(scheduledTask.scheduled_time!)
+            if let scheduledTask = jong.lscheduledTasks.last(where: {$0.task == self.selectedJCategories}) {
+                self.selectedJTimes = Int(scheduledTask.scheduled_time!)
             } else {
-                jong.selectedLtimesid = 0
+                self.selectedJTimes = 0
             }
         }
     }
@@ -302,5 +342,11 @@ struct ScheduleView_Previews: PreviewProvider {
         scheduleView.jong = mockJong
 
         return scheduleView
+    }
+}
+
+extension String: Equatable {
+    public static func == (lhs: String, rhs: String) -> Bool {
+        return lhs == rhs
     }
 }

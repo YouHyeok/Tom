@@ -13,7 +13,6 @@ class Networking: ObservableObject {
     @Published var lcategories = [String]()
     @Published var lscheduledTasks = [ScheduledTasks]()
     @Published var ltimes = ["Descheduling", "5 min", "10 min", "15 min", "30 min", "1 hour", "2 hour"]
-    @Published var selectedLtimesid: Int = 0
     
     func getCategories(url: String, query: [String: String], completion: @escaping (([String]?) -> Void)) {
             guard let sessionUrl = URL(string: url) else {
