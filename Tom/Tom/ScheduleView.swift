@@ -129,9 +129,7 @@ struct ScheduleView: View {
                                 Text(category).tag(category) }
                         }
                         .pickerStyle(.wheel)
-                        .onChange(of: selectedYBCategories, perform: {
-                            value in
-                            
+                        .onChange(of: selectedYBCategories, perform: { value in
                             self.selectedYCategories = you.lcategories.filter { $0.contains(value) }.first!
                             
                             if let getScheduledTask = you.lscheduledTasks.last(where: {$0.task == selectedYCategories}) {
@@ -181,9 +179,7 @@ struct ScheduleView: View {
                                 Text(category).tag(category) }
                         }
                         .pickerStyle(.wheel)
-                        .onChange(of: selectedJBCategories, perform: {
-                            value in
-                            
+                        .onChange(of: selectedJBCategories, perform: { value in                            
                             self.selectedJCategories = jong.lcategories.filter { $0.contains(value) }.first!
                             
                             if let getScheduledTask = jong.lscheduledTasks.last(where: {$0.task == selectedJCategories}) {
