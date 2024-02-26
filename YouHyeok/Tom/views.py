@@ -190,3 +190,23 @@ def git(request):
         return Response({"results": "success"})
     else:
         return Response({"results": "failed"})
+
+@api_view(['POST'])
+def deploy_blogs(request):
+    print(request.data)
+
+    user = request.data['user']
+    repo = request.data['blog']
+    repos = os.listdir("/root/Repos" + '/' + user)
+
+    if repo in repos:
+        print(repo)
+
+        if user == 'Jong':
+            os.system("bash /root/Repos/%s/%s/publish.sh" % (user, repo))
+        elif user == "Jun":
+            os.system("bash /root/Repos/%s/%s/publish.sh" % (user, repo))
+
+        return Response({"results": "success"})
+    else:
+        return Response({"results": "failed"})
