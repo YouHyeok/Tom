@@ -29,12 +29,12 @@ schedule_time = {"1": 5, "2": 10, "3": 15, "4": 30, "5": 60, "6": 120}
 @api_view(['GET'])
 def index(request):
     if request.GET.get('user', None) != None:
-        if request.GET.get('user', None) == 'You':
-            repos = os.listdir("/root/Repos/You")
+        if request.GET.get('user', None) == 'Jun':
+            repos = os.listdir("/root/Repos/Jun")
             categories = []
 
             for repo in repos:
-                with open('/root/Repos/You/%s/package.json' % repo) as f:
+                with open('/root/Repos/Jun/%s/package.json' % repo) as f:
                     json_object = json.load(f)
 
                     for key, values in json_object['scripts'].items():
@@ -60,8 +60,8 @@ def index(request):
 @api_view(['GET'])
 def scheduled_tasks(request):
     if request.GET.get('user', None) != None:
-        if request.GET.get('user', None) == 'You':
-            scheduled_tasks = SchedulingTasks.objects.filter(user = 'You')
+        if request.GET.get('user', None) == 'Jun':
+            scheduled_tasks = SchedulingTasks.objects.filter(user = 'Jun')
             scheduled_tasks = [model_to_dict(obj) for obj in scheduled_tasks]
 
             serializer = SchedulingSerializer(data = scheduled_tasks, many = True)
@@ -174,11 +174,38 @@ def git(request):
         print(repo)
         print(category)
 
-        with open('/root/Repos/%s/%s/package.json' % (user, repo)) as f:
-            json_object = json.load(f)
+        if user == 'Jong':
+            with open('/root/Repos/%s/%s/package.json' % (user, repo)) as f:
+                json_object = json.load(f)
 
-            os.system("cd /root/Repos/%s/%s/ && git config --local user.name \"%s\" && git config --local user.email \"%s\"" % (user, repo, json_object['scripts']['user_name'], json_object['scripts']['user_email']))
-            os.system("cd /root/Repos/%s/%s/ && npm run %s" % (user, repo, category))
+                os.system("cd /root/Repos/%s/%s/ && git config --local user.name \"%s\" && git config --local user.email \"%s\"" % (user, repo, json_object['scripts']['user_name'], json_object['scripts']['user_email']))
+                os.system("cd /root/Repos/%s/%s/ && npm run %s" % (user, repo, category))
+        elif user == "Jun":
+            with open('/root/Repos/%s/%s/package.json' % (user, repo)) as f:    
+                json_object = json.load(f)
+
+                os.system("cd /root/Repos/%s/%s/ && git config --local user.name \"%s\" && git config --local user.email \"%s\"" % (user, repo, json_object['scripts']['user_name'], json_object['scripts']['user_email']))
+                os.system("cd /root/Repos/%s/%s/ && npm run %s" % (user, repo, category))
+
+        return Response({"results": "success"})
+    else:
+        return Response({"results": "failed"})
+
+@api_view(['POST'])
+def deploy_blogs(request):
+    print(request.data)
+
+    user = request.data['user']
+    repo = request.data['blog']
+    repos = os.listdir("/root/Repos" + '/' + user)
+
+    if repo in repos:
+        print(repo)
+
+        if user == 'Jong':
+            os.system("bash /root/Repos/%s/%s/publish.sh" % (user, repo))
+        elif user == "Jun":
+            os.system("bash /root/Repos/%s/%s/publish.sh" % (user, repo))
 
         return Response({"results": "success"})
     else:

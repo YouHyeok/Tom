@@ -11,7 +11,7 @@ import SwiftUI
 import Alamofire
 
 struct MainView: View {
-    @ObservedObject var you: Networking = Networking()
+    @ObservedObject var jun: Networking = Networking()
     @ObservedObject var jong: Networking = Networking()
     
     @State var selectedUser = false
@@ -30,7 +30,7 @@ struct MainView: View {
     @State var is_jb_loading = true
     
     init() {
-        you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
+        jun.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jun"], completion: { (categories) in
             
         })
         
@@ -48,16 +48,16 @@ struct MainView: View {
                     
                     Button(action: {
                         if selectedUser == false {
-                            you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
+                            jun.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jun"], completion: { (categories) in
                                 DispatchQueue.main.async { [self] in
-                                    self.ybcategories = Array(Set(you.lcategories.map { value in
+                                    self.ybcategories = Array(Set(jun.lcategories.map { value in
                                         
                                         value.components(separatedBy: "-").first!
                                     })).sorted()
                                     
                                     self.is_yb_loading = false
                                     self.selectedYBCategories = self.ybcategories.first!
-                                    self.selectedYCategories = you.lcategories.filter { $0.contains(self.selectedYBCategories) }.first!
+                                    self.selectedYCategories = jun.lcategories.filter { $0.contains(self.selectedYBCategories) }.first!
                                 }
                             })
                         } else {
@@ -139,15 +139,15 @@ struct MainView: View {
                         .pickerStyle(.wheel)
                         .onChange(of: selectedYBCategories, perform: { value in
                             
-                            self.selectedYCategories = you.lcategories.filter { $0.contains(value) }.first!
+                            self.selectedYCategories = jun.lcategories.filter { $0.contains(value) }.first!
                         })
                         .padding(5)
                         
                         Picker("", selection: $selectedYCategories) {
-                            ForEach(you.lcategories.indices, id: \.self) { index in
+                            ForEach(jun.lcategories.indices, id: \.self) { index in
                                 if !is_yb_loading {
-                                    if you.lcategories[index].contains(selectedYBCategories) {
-                                        Text(you.lcategories[index]).tag(you.lcategories[index])
+                                    if jun.lcategories[index].contains(selectedYBCategories) {
+                                        Text(jun.lcategories[index]).tag(jun.lcategories[index])
                                     }
                                 }
                             }
@@ -187,7 +187,7 @@ struct MainView: View {
                     alertShowing = false
                     
                     if selectedUser == false {
-                        you.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "You", "category": selectedYCategories], completion: { (results) in
+                        jun.triggerGIT(url: "http://221.159.102.58:8000/api/trigger/upload/git", bodyl: ["user": "Jun", "category": selectedYCategories], completion: { (results) in
                             
                             alertShowing = true
                             
@@ -219,16 +219,16 @@ struct MainView: View {
             
         }
         .onAppear {
-            you.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "You"], completion: { (categories) in
+            jun.getCategories(url: "http://221.159.102.58:8000/api/get/categories", query: ["user": "Jun"], completion: { (categories) in
                 DispatchQueue.main.async { [self] in
-                    self.ybcategories = Array(Set(you.lcategories.map { value in
+                    self.ybcategories = Array(Set(jun.lcategories.map { value in
                         
                         value.components(separatedBy: "-").first!
                     })).sorted()
                     
                     self.is_yb_loading = false
                     self.selectedYBCategories = self.ybcategories.first!
-                    self.selectedYCategories = you.lcategories.filter { $0.contains(self.selectedYBCategories) }.first!
+                    self.selectedYCategories = jun.lcategories.filter { $0.contains(self.selectedYBCategories) }.first!
                 }
             })
             
