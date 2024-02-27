@@ -24,6 +24,11 @@ struct ContentView: View {
                         Label("Schedule", systemImage: "desktopcomputer")
                     }
                 
+                ScheduleListView()
+                    .tabItem {
+                        Label("Schedule List", systemImage: "desktopcomputer")
+                    }
+                
                 DeployView()
                     .tabItem {
                         Label("Deploy", systemImage: "desktopcomputer")
